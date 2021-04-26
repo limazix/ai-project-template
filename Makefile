@@ -59,3 +59,10 @@ run-hub:
 		-w /home/jovyan/work \
 		--security-opt label=desable \
 		$(IMAGE_NAME) jupyter lab
+
+serve:
+	@mkdir -p ./build/s3
+	@mkdir -p ./build/dbdata
+	@poetry run podman-compose down
+	@poetry run podman-compose build
+	@poetry run podman-compose up
