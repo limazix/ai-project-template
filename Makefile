@@ -46,23 +46,11 @@ deploy-docs:
 	@git push origin `git subtree split --prefix gh-pages main`:gh-pages --force
 	@git reset --hard HEAD~
 
-build-hub:
-	@poetry export -f requirements.txt -o requirements.txt
-	@$(CONTAINER_RUNNER) build -f docker/jupyter-lab.dockerfile -t $(IMAGE_NAME) .
-	@rm requirements.txt
-	
-run-hub:
-	@$(CONTAINER_RUNNER) run -it --rm -p 8888:8888 \
-		-v $(ROOT_DIR)/notebooks/:/home/jovyan/work/notebooks \
-		-v $(ROOT_DIR)/data/:/home/jovyan/work/data \
-		-v $(ROOT_DIR)/tools/:/home/jovyan/work/tools \
-		-w /home/jovyan/work \
-		--security-opt label=desable \
-		$(IMAGE_NAME) jupyter lab
-
 serve:
 	@mkdir -p ./build/s3
 	@mkdir -p ./build/dbdata
-	@poetry run podman-compose down
-	@poetry run podman-compose build
-	@poetry run podman-compose up
+	@$(PYTHON_RUNNER) podman-compose down
+	@poetry export -f requirements.txt -o requirements.txt
+	@$(PYTHON_RUNNER) podman-compose build
+	@rm requirements.txt
+	@$(PYTHON_RUNNER) podman-compose up
